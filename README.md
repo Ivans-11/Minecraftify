@@ -5,10 +5,24 @@ A tool for converting 3D models to Minecraft blocks. [中文](README_zh.md)
 ## Project Introduction
 This project is a tool for voxelizing 3D models and converting them into blocks in the Minecraft world. It supports multiple 3D model formats, such as OBJ, STL, PLY, etc., and can perform conversions based on the materials (wool, concrete, terracotta, glass) selected by the user.
 
+## Installation
+### For Users
+1. Download the latest release from the releases page
+2. Extract the downloaded zip file
+3. Run `Minecraftify.exe` to start the application
+
+### For Developers
+1. Clone this repository
+2. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Run `gui.py` to start the application
+
 ## Usage Instructions
 1. Prepare the 3D model file you want to convert. Supported formats include OBJ, STL, PLY, GLB, etc.
 2. Create a new world in Minecraft, save and exit. It is recommended to choose a flat world.
-3. Run `gui.py` to start the tool interface.
+3. Run `Minecraftify.exe` or `gui.py` to start the tool interface.
 ![GUI](image/GUI_en.png)
 4. In the interface, select the 3D model file you want to convert and the path of an existing Minecraft world (usually `Game Directory\saves\World Name\`).
 5. Check the materials to be used for the conversion. Currently, wool, concrete, terracotta, and glass are supported.
