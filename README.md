@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="256" height="256" src="image/logo_white.png">
+</p>
+
 # Minecraftify
 A tool for converting 3D models to Minecraft blocks. [中文](README_zh.md)
 
@@ -26,13 +30,14 @@ This project is a tool for voxelizing 3D models and converting them into blocks 
 ![GUI](image/GUI_en.png)
 4. In the interface, select the 3D model file you want to convert and the path of an existing Minecraft world (usually `Game Directory\saves\World Name\`).
 5. Check the materials to be used for the conversion. Currently, wool, concrete, terracotta, and glass are supported.
-6. You can expand the advanced options to set the starting position, voxel size, game version, etc.
+6. You can expand the advanced options to set the starting position, rotation angle, voxel size, game version, etc.
 7. Click the "Convert" button to start the conversion.
 8. After the conversion is completed, open the selected world in Minecraft, and you can see the converted model.
 ![Minecraft](image/MC.png)
 
 ## Notes
 - Please ensure that the selected Minecraft world path is correct to avoid data loss.
+- The Rotation Angle is in degrees. Three angles are used to represent the rotation of the model in the x, y, and z axes.
 - Setting a smaller voxel size can improve the conversion accuracy, but it will also increase the conversion time.
 - The conversion process may take some time, depending on the complexity of the model.
 - Currently, only solid - color conversions are supported. Texture mapping will be forcibly converted to a single color.

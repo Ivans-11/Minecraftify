@@ -1,3 +1,4 @@
 trimesh==4.6.8
 amulet-core==1.9.29
 scipy==1.15.1
+numpy==1.26.4

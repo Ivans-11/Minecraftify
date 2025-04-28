@@ -2,3 +2,5 @@ models/
 __pycache__/
 dist/
 build/
+test.py
+*.spec

@@ -3,6 +3,7 @@ import amulet
 from amulet.api.block import Block
 from math import sqrt
 from scipy.spatial import cKDTree
+import numpy as np
 
 WOOL_PALETTE = {
     "minecraft:white_wool": (234, 236, 237),
@@ -77,6 +78,7 @@ GLASS_PALETTE = {
     "minecraft:black_stained_glass": (25, 25, 25),
 }
 START_POS = (0, -60, 0)  # Insertion start point, world coordinates (x, y, z)
+ROTATE_ANGLE = (0, 0, 0)  # Rotation angle (x, y, z), in degrees
 PITCH = 1.0  # Voxel size, smaller is finer (note MC block size limit)
 GAME_VERSION = ("java", (1, 20, 1))  # Minecraft version
 
@@ -85,7 +87,7 @@ def find_closest_block_with_glass(color, palette, glass_palette=GLASS_PALETTE):
     r, g, b, a = color
     min_distance = float('inf')
     closest_block = None
-    if a < 128:
+    if a < 200:
         for block_name, (br, bg, bb) in glass_palette.items():
             distance = sqrt((r-br)**2 + (g-bg)**2 + (b-bb)**2)
             if distance < min_distance:
@@ -175,17 +177,40 @@ def voxelize_model(mesh, pitch=PITCH):
     print(f"Voxelization completed, {len(points)} blocks in total")
     return points, colors, tree
 
-# Insert blocks
-def insert_blocks(points, colors, tree, world, palette, start_pos=START_POS, game_version=GAME_VERSION):
-    dimension = world.dimensions[0]
-    for point in points:
-        # Voxel point to integer
-        vx, vy, vz = map(int, point)
+# Calculate rotation matrix
+def calculate_rotation_matrix(rotate_angle=ROTATE_ANGLE):
+    # Convert degrees to radians for rotation
+    rx, ry, rz = map(lambda x: x * 3.1415926 / 180, rotate_angle)
+    # Rotation matrix for x-axis
+    rx_matrix = [
+        [1, 0, 0],
+        [0, np.cos(rx), -np.sin(rx)],
+        [0, np.sin(rx), np.cos(rx)]
+    ]
+    # Rotation matrix for y-axis
+    ry_matrix = [
+        [np.cos(ry), 0, np.sin(ry)],
+        [0, 1, 0],
+        [-np.sin(ry), 0, np.cos(ry)]
+    ]
+    # Rotation matrix for z-axis
+    rz_matrix = [
+        [np.cos(rz), -np.sin(rz), 0],
+        [np.sin(rz), np.cos(rz), 0],
+        [0, 0, 1]
+    ]
+    # Combine rotation matrices
+    rotation_matrix = np.dot(rz_matrix, np.dot(ry_matrix, rx_matrix))
+    return rotation_matrix
 
+# Insert blocks
+def insert_blocks(points, colors, tree, world, palette, start_pos=START_POS, rotate_angle=ROTATE_ANGLE, game_version=GAME_VERSION):
+    dimension = world.dimensions[0]
+    rotation_matrix = calculate_rotation_matrix(rotate_angle)
+    for point in points:
         # Calculate real world coordinates
-        world_x = start_pos[0] + vx
-        world_y = start_pos[1] + vy
-        world_z = start_pos[2] + vz
+        world_x, world_y, world_z = np.dot(rotation_matrix, point) + start_pos
+        world_x, world_y, world_z = map(int, (world_x, world_y, world_z))
 
         # Get voxel color
         voxel_color = get_voxel_color(point, colors, tree)
@@ -206,7 +231,7 @@ def insert_blocks(points, colors, tree, world, palette, start_pos=START_POS, gam
     print(f"Successfully placed {len(points)} blocks")
 
 # Main function
-def model_to_minecraft(obj_file, world_path, start_pos=START_POS, pitch=PITCH, game_version=GAME_VERSION, wool=True, concrete=True, terracotta=True, glass=True):
+def model_to_minecraft(obj_file, world_path, start_pos=START_POS, rotate_angle=ROTATE_ANGLE, pitch=PITCH, game_version=GAME_VERSION, wool=True, concrete=True, terracotta=True, glass=True):
     global find_closest_block
     find_closest_block = get_block_function(wool, concrete, terracotta, glass)
     palette = get_palette(wool, concrete, terracotta)
@@ -218,7 +243,7 @@ def model_to_minecraft(obj_file, world_path, start_pos=START_POS, pitch=PITCH, g
 
     for mesh in meshes:
         points, colors, tree = voxelize_model(mesh, pitch)
-        insert_blocks(points, colors, tree, world, palette, start_pos, game_version)
+        insert_blocks(points, colors, tree, world, palette, start_pos, rotate_angle, game_version)
     
         print("Saving world...")
         world.save()
