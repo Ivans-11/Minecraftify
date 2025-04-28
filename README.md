@@ -8,7 +8,7 @@ This project is a tool for voxelizing 3D models and converting them into blocks 
 ## Installation
 ### For Users
 1. Download the latest release from the releases page
-2. Extract the downloaded zip file
+2. Extract the downloaded compressed package
 3. Run `Minecraftify.exe` to start the application
 
 ### For Developers
