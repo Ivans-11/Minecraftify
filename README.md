@@ -54,3 +54,4 @@ This project is a tool for voxelizing 3D models and converting them into blocks 
 ## File Description
 - `gui.py`: The graphical user interface of the tool.
 - `tran.py`: The core code for implementing the 3D model conversion logic.
+- `mcify.py`: The command line tool for model conversion.
