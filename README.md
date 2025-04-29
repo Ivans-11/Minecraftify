@@ -21,9 +21,17 @@ This project is a tool for voxelizing 3D models and converting them into blocks 
    ```bash
    pip install -r requirements.txt
    ```
-3. Run `gui.py` to start the application
+3. Run`gui.py` to start the application, or use the command line tool `python mcify.py` to perform conversions:
+   ```bash
+   # simple usage
+   python mcify.py model.obj world_path
+   # use more parameters
+   python mcify.py model.obj world_path --start-pos 0,-60,0 --rotate 90,0,0 --pitch 0.5 --version 1.20.1 --no-wool --no-glass
+   # view detailed parameter descriptions
+   python mcify.py --help 
+   ```
 
-## Usage Instructions
+## Usage Instructions for GUI
 1. Prepare the 3D model file you want to convert. Supported formats include OBJ, STL, PLY, GLB, etc.
 2. Create a new world in Minecraft, save and exit. It is recommended to choose a flat world.
 3. Run `Minecraftify.exe` or `gui.py` to start the tool interface.

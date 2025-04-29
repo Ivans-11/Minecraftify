@@ -20,9 +20,17 @@
    ```bash
    pip install -r requirements.txt
    ```
-3. 运行`gui.py`启动程序
+3. 运行`gui.py`启动图形化界面 或 使用命令行工具`python mcify.py`进行转换
+   ```bash
+   # 简单用法
+   python mcify.py model.obj world_path
+   # 使用更多参数
+   python mcify.py model.obj world_path --start-pos 0,-60,0 --rotate 90,0,0 --pitch 0.5 --version 1.20.1 --no-wool --no-glass
+   # 查看详细参数说明
+   python mcify.py --help 
+   ```
 
-## 使用方法
+## 图形化界面使用方法
 1. 准备好要转换的3D模型文件，支持的格式包括OBJ、STL、PLY、GLB等。
 2. 在Minecraft中创建一个新的世界，保存并退出，最好选择一个平坦的世界。
 3. 运行`Minecraftify.exe`或`gui.py`启动工具界面。
