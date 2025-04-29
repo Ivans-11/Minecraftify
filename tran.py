@@ -1,9 +1,9 @@
 import trimesh
-import amulet
+from amulet import load_level
 from amulet.api.block import Block
 from math import sqrt
 from scipy.spatial import cKDTree
-import numpy as np
+from numpy import sin, cos, dot
 
 WOOL_PALETTE = {
     "minecraft:white_wool": (234, 236, 237),
@@ -184,23 +184,23 @@ def calculate_rotation_matrix(rotate_angle=ROTATE_ANGLE, pitch=PITCH):
     # Rotation matrix for x-axis
     rx_matrix = [
         [1, 0, 0],
-        [0, np.cos(rx), -np.sin(rx)],
-        [0, np.sin(rx), np.cos(rx)]
+        [0, cos(rx), -sin(rx)],
+        [0, sin(rx), cos(rx)]
     ]
     # Rotation matrix for y-axis
     ry_matrix = [
-        [np.cos(ry), 0, np.sin(ry)],
+        [cos(ry), 0, sin(ry)],
         [0, 1, 0],
-        [-np.sin(ry), 0, np.cos(ry)]
+        [-sin(ry), 0, cos(ry)]
     ]
     # Rotation matrix for z-axis
     rz_matrix = [
-        [np.cos(rz), -np.sin(rz), 0],
-        [np.sin(rz), np.cos(rz), 0],
+        [cos(rz), -sin(rz), 0],
+        [sin(rz), cos(rz), 0],
         [0, 0, 1]
     ]
     # Combine rotation matrices
-    rotation_matrix = np.dot(rz_matrix, np.dot(ry_matrix, rx_matrix))
+    rotation_matrix = dot(rz_matrix, dot(ry_matrix, rx_matrix))
     return rotation_matrix / pitch
 
 # Insert blocks
@@ -209,7 +209,7 @@ def insert_blocks(points, colors, tree, world, palette, start_pos=START_POS, rot
     rotation_matrix = calculate_rotation_matrix(rotate_angle, pitch)
     for point in points:
         # Calculate real world coordinates
-        world_x, world_y, world_z = np.dot(rotation_matrix, point) + start_pos
+        world_x, world_y, world_z = dot(rotation_matrix, point) + start_pos
         world_x, world_y, world_z = map(int, (world_x, world_y, world_z))
 
         # Get voxel color
@@ -239,7 +239,7 @@ def model_to_minecraft(obj_file, world_path, start_pos=START_POS, rotate_angle=R
     meshes = load_model(obj_file)
 
     print("Connecting to Minecraft world...")
-    world = amulet.load_level(world_path)
+    world = load_level(world_path)
 
     for mesh in meshes:
         points, colors, tree = voxelize_model(mesh, pitch)

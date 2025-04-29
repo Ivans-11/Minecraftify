@@ -71,22 +71,82 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.language = self.load_language()
+        self.model_dir = self.load_model_dir()
+        self.world_dir = self.load_world_dir()
         self.title(LANGUAGES[self.language]['title'])
         self.create_widgets()
 
     def load_language(self):
-        if os.path.exists('language_settings.json'):
-            with open('language_settings.json', 'r') as f:
+        if os.path.exists('settings.json'):
+            with open('settings.json', 'r') as f:
                 try:
                     return json.load(f).get('language', 'zh')
                 except json.JSONDecodeError:
                     return 'zh'
         else:
             return 'zh'
+    
+    def load_model_dir(self):
+        if os.path.exists('settings.json'):
+            with open('settings.json', 'r') as f:
+                try:
+                    return json.load(f).get('model_dir', '')
+                except json.JSONDecodeError:
+                    return ''
+        else:
+            return ''
+    
+    def load_world_dir(self):
+        if os.path.exists('settings.json'):
+            with open('settings.json', 'r') as f:
+                try:
+                    return json.load(f).get('world_dir', '')
+                except json.JSONDecodeError:
+                    return ''
+        else:
+            return ''
 
     def save_language(self):
-        with open('language_settings.json', 'w') as f:
-            json.dump({'language': self.language}, f)
+        if not os.path.exists('settings.json'):
+            with open('settings.json', 'w') as f:
+                json.dump({'language': self.language}, f)
+        else:
+            with open('settings.json', 'r') as f:
+                try:
+                    settings = json.load(f)
+                except json.JSONDecodeError:
+                    settings = {}
+            settings['language'] = self.language
+            with open('settings.json', 'w') as f:
+                json.dump(settings, f)
+    
+    def save_model_dir(self):
+        if not os.path.exists('settings.json'):
+            with open('settings.json', 'w') as f:
+                json.dump({'model_dir': self.model_dir}, f)
+        else:
+            with open('settings.json', 'r') as f:
+                try:
+                    settings = json.load(f)
+                except json.JSONDecodeError:
+                    settings = {}
+            settings['model_dir'] = self.model_dir
+            with open('settings.json', 'w') as f:
+                json.dump(settings, f)
+    
+    def save_world_dir(self):
+        if not os.path.exists('settings.json'):
+            with open('settings.json', 'w') as f:
+                json.dump({'world_dir': self.world_dir}, f)
+        else:
+            with open('settings.json', 'r') as f:
+                try:
+                    settings = json.load(f)
+                except json.JSONDecodeError:
+                    settings = {}
+            settings['world_dir'] = self.world_dir
+            with open('settings.json', 'w') as f:
+                json.dump(settings, f)
 
     def create_widgets(self):
         # Title
@@ -168,18 +228,25 @@ class App(tk.Tk):
         # Output text
         self.output_text = tk.Text(self, height=10, width=60)
         self.output_text.grid(row=11, column=0, columnspan=3, padx=5, pady=5)
+        def disable_edit(event):
+            return "break"
+        self.output_text.bind("<Key>", disable_edit)
 
     def browse_obj_file(self):
-        file_path = filedialog.askopenfilename(filetypes=[('Supported Files', '*.obj;*.stl;*.ply;*.off;*.glb;*.gltf'), ('OBJ Files', '*.obj'), ('STL Files', '*.stl'), ('PLY Files', '*.ply'), ('OFF Files', '*.off'), ('GLB Files', '*.glb;*.gltf')])
+        file_path = filedialog.askopenfilename(filetypes=[('Supported Files', '*.obj;*.stl;*.ply;*.off;*.glb;*.gltf'), ('OBJ Files', '*.obj'), ('STL Files', '*.stl'), ('PLY Files', '*.ply'), ('OFF Files', '*.off'), ('GLB Files', '*.glb;*.gltf')], initialdir=self.model_dir)
         if file_path:
             self.obj_file_entry.delete(0, tk.END)
             self.obj_file_entry.insert(0, file_path)
+            self.model_dir = os.path.dirname(file_path)
+            self.save_model_dir()
 
     def browse_world_path(self):
-        folder_path = filedialog.askdirectory()
+        folder_path = filedialog.askdirectory(initialdir=self.world_dir)
         if folder_path:
             self.world_path_entry.delete(0, tk.END)
             self.world_path_entry.insert(0, folder_path)
+            self.world_dir = os.path.dirname(folder_path)
+            self.save_world_dir()
 
     def change_language(self, event):
         self.language = self.language_combo.get()
