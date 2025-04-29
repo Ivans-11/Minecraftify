@@ -178,7 +178,7 @@ def voxelize_model(mesh, pitch=PITCH):
     return points, colors, tree
 
 # Calculate rotation matrix
-def calculate_rotation_matrix(rotate_angle=ROTATE_ANGLE):
+def calculate_rotation_matrix(rotate_angle=ROTATE_ANGLE, pitch=PITCH):
     # Convert degrees to radians for rotation
     rx, ry, rz = map(lambda x: x * 3.1415926 / 180, rotate_angle)
     # Rotation matrix for x-axis
@@ -201,12 +201,12 @@ def calculate_rotation_matrix(rotate_angle=ROTATE_ANGLE):
     ]
     # Combine rotation matrices
     rotation_matrix = np.dot(rz_matrix, np.dot(ry_matrix, rx_matrix))
-    return rotation_matrix
+    return rotation_matrix / pitch
 
 # Insert blocks
-def insert_blocks(points, colors, tree, world, palette, start_pos=START_POS, rotate_angle=ROTATE_ANGLE, game_version=GAME_VERSION):
+def insert_blocks(points, colors, tree, world, palette, start_pos=START_POS, rotate_angle=ROTATE_ANGLE, pitch=PITCH, game_version=GAME_VERSION):
     dimension = world.dimensions[0]
-    rotation_matrix = calculate_rotation_matrix(rotate_angle)
+    rotation_matrix = calculate_rotation_matrix(rotate_angle, pitch)
     for point in points:
         # Calculate real world coordinates
         world_x, world_y, world_z = np.dot(rotation_matrix, point) + start_pos
@@ -243,7 +243,7 @@ def model_to_minecraft(obj_file, world_path, start_pos=START_POS, rotate_angle=R
 
     for mesh in meshes:
         points, colors, tree = voxelize_model(mesh, pitch)
-        insert_blocks(points, colors, tree, world, palette, start_pos, rotate_angle, game_version)
+        insert_blocks(points, colors, tree, world, palette, start_pos, rotate_angle, pitch, game_version)
     
         print("Saving world...")
         world.save()
