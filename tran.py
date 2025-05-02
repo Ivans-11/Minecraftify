@@ -82,6 +82,9 @@ ROTATE_ANGLE = (0, 0, 0)  # Rotation angle (x, y, z), in degrees
 PITCH = 1.0  # Voxel size, smaller is finer (note MC block size limit)
 GAME_VERSION = ("java", (1, 20, 1))  # Minecraft version
 
+def call_back_null(stage_index, stage_num, current_step, stage_steps):
+    pass
+
 # Find the closest block in the palette based on color
 def find_closest_block_with_glass(color, palette, glass_palette=GLASS_PALETTE):
     r, g, b, a = color
@@ -204,10 +207,10 @@ def calculate_rotation_matrix(rotate_angle=ROTATE_ANGLE, pitch=PITCH):
     return rotation_matrix / pitch
 
 # Insert blocks
-def insert_blocks(points, colors, tree, world, palette, start_pos=START_POS, rotate_angle=ROTATE_ANGLE, pitch=PITCH, game_version=GAME_VERSION):
+def insert_blocks(points, colors, tree, world, palette, start_pos=START_POS, rotate_angle=ROTATE_ANGLE, pitch=PITCH, game_version=GAME_VERSION, call_back=call_back_null, stage_index=0, stage_num=1):
     dimension = world.dimensions[0]
     rotation_matrix = calculate_rotation_matrix(rotate_angle, pitch)
-    for point in points:
+    for i, point in enumerate(points):
         # Calculate real world coordinates
         world_x, world_y, world_z = dot(rotation_matrix, point) + start_pos
         world_x, world_y, world_z = map(int, (world_x, world_y, world_z))
@@ -228,22 +231,26 @@ def insert_blocks(points, colors, tree, world, palette, start_pos=START_POS, rot
             game_version,
             block,
         )
+        call_back(stage_index, stage_num, len(points)+i, len(points)*2)
     print(f"Successfully placed {len(points)} blocks")
 
 # Main function
-def model_to_minecraft(obj_file, world_path, start_pos=START_POS, rotate_angle=ROTATE_ANGLE, pitch=PITCH, game_version=GAME_VERSION, wool=True, concrete=True, terracotta=True, glass=True):
+def model_to_minecraft(obj_file, world_path, start_pos=START_POS, rotate_angle=ROTATE_ANGLE, pitch=PITCH, game_version=GAME_VERSION, wool=True, concrete=True, terracotta=True, glass=True, call_back=call_back_null):
     global find_closest_block
     find_closest_block = get_block_function(wool, concrete, terracotta, glass)
     palette = get_palette(wool, concrete, terracotta)
 
     meshes = load_model(obj_file)
+    call_back(len(meshes)-1, len(meshes)*2+1, 0, 1)
 
     print("Connecting to Minecraft world...")
     world = load_level(world_path)
+    call_back(len(meshes), len(meshes)*2+1, 0, 1)
 
-    for mesh in meshes:
+    for i, mesh in enumerate(meshes):
         points, colors, tree = voxelize_model(mesh, pitch)
-        insert_blocks(points, colors, tree, world, palette, start_pos, rotate_angle, pitch, game_version)
+        call_back(len(meshes)+i+1, len(meshes)*2+1, len(points)-1, len(points)*2)
+        insert_blocks(points, colors, tree, world, palette, start_pos, rotate_angle, pitch, game_version, call_back, len(meshes)+i+1, len(meshes)*2+1)
     
         print("Saving world...")
         world.save()

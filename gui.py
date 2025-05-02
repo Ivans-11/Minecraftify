@@ -31,6 +31,7 @@ LANGUAGES = {
         'error_no_file': 'Please select model file and world path',
         'convert_success': 'The conversion was successful! Enjoy your Minecraft model!',
         'convert_failed': 'Conversion failed',
+        'output_msg': 'Output Message'
     },
     'zh': {
         'title': '三维模型转Minecraft工具',
@@ -54,6 +55,7 @@ LANGUAGES = {
         'error_no_file': '未选择模型文件或世界路径',
         'convert_success': '转换成功！享受你的Minecraft模型！',
         'convert_failed': '转换失败',
+        'output_msg': '输出信息'
     }
 }
 
@@ -65,7 +67,7 @@ class StdoutRedirector(StringIO):
     def write(self, string):
         self.text_widget.insert(tk.END, string)
         self.text_widget.see(tk.END)
-        self.text_widget.update_idletasks()
+        self.text_widget.update_idletasks() 
 
 class App(tk.Tk):
     def __init__(self):
@@ -74,6 +76,8 @@ class App(tk.Tk):
         self.model_dir = self.load_model_dir()
         self.world_dir = self.load_world_dir()
         self.title(LANGUAGES[self.language]['title'])
+        self.geometry('800x700')
+        self.minsize(800, 700)
         self.create_widgets()
 
     def load_language(self):
@@ -149,88 +153,96 @@ class App(tk.Tk):
                 json.dump(settings, f)
 
     def create_widgets(self):
+        # Main frame
+        main_frame = ttk.Frame(self, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
         # Title
-        ttk.Label(self, text="Minecraftify", font=('Helvetica', 24, 'bold')).grid(row=0, column=0, columnspan=3, padx=5, pady=5)
+        title_label = ttk.Label(main_frame, text="Minecraftify", font=('Microsoft YaHei UI', 24, 'bold'))
+        title_label.pack(pady=(0, 20))
 
-        # File selection
-        ttk.Label(self, text=LANGUAGES[self.language]['obj_file']).grid(row=1, column=0, padx=5, pady=5, sticky='w')
-        self.obj_file_entry = ttk.Entry(self, width=50)
-        self.obj_file_entry.grid(row=1, column=1, padx=5, pady=5)
-        ttk.Button(self, text=LANGUAGES[self.language]['browse'], command=self.browse_obj_file).grid(row=1, column=2, padx=5, pady=5)
+        # File path
+        file_frame = ttk.LabelFrame(main_frame, text=LANGUAGES[self.language]['obj_file'], padding="10")
+        file_frame.pack(fill=tk.X, pady=5)
+        
+        self.obj_file_entry = ttk.Entry(file_frame, width=50)
+        self.obj_file_entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        ttk.Button(file_frame, text=LANGUAGES[self.language]['browse'], command=self.browse_obj_file).pack(side=tk.RIGHT, padx=5)
 
-        ttk.Label(self, text=LANGUAGES[self.language]['world_path']).grid(row=2, column=0, padx=5, pady=5, sticky='w')
-        self.world_path_entry = ttk.Entry(self, width=50)
-        self.world_path_entry.grid(row=2, column=1, padx=5, pady=5)
-        ttk.Button(self, text=LANGUAGES[self.language]['browse'], command=self.browse_world_path).grid(row=2, column=2, padx=5, pady=5)
+        # World path
+        world_frame = ttk.LabelFrame(main_frame, text=LANGUAGES[self.language]['world_path'], padding="10")
+        world_frame.pack(fill=tk.X, pady=5)
+        
+        self.world_path_entry = ttk.Entry(world_frame, width=50)
+        self.world_path_entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        ttk.Button(world_frame, text=LANGUAGES[self.language]['browse'], command=self.browse_world_path).pack(side=tk.RIGHT, padx=5)
 
-        # Materials selection
-        ttk.Label(self, text=LANGUAGES[self.language]['materials']).grid(row=3, column=0, padx=5, pady=5, sticky='w')
-        materials_frame = ttk.Frame(self)
-        materials_frame.grid(row=3, column=1, columnspan=3, padx=5, pady=5, sticky='w')
-        #ttk.Label(materials_frame, text=LANGUAGES[self.language]['materials']).pack(side=tk.LEFT, padx=10)
+        # Materials
+        materials_frame = ttk.LabelFrame(main_frame, text=LANGUAGES[self.language]['materials'], padding="10")
+        materials_frame.pack(fill=tk.X, pady=5)
+        
         self.wool_var = tk.IntVar(value=1)
-        ttk.Checkbutton(materials_frame, text=LANGUAGES[self.language]['wool'], variable=self.wool_var).pack(side=tk.LEFT, padx=5)
         self.concrete_var = tk.IntVar(value=1)
-        ttk.Checkbutton(materials_frame, text=LANGUAGES[self.language]['concrete'], variable=self.concrete_var).pack(side=tk.LEFT, padx=5)
         self.terracotta_var = tk.IntVar(value=1)
-        ttk.Checkbutton(materials_frame, text=LANGUAGES[self.language]['terracotta'], variable=self.terracotta_var).pack(side=tk.LEFT, padx=5)
         self.glass_var = tk.IntVar(value=1)
-        ttk.Checkbutton(materials_frame, text=LANGUAGES[self.language]['glass'], variable=self.glass_var).pack(side=tk.LEFT, padx=5)
+        
+        ttk.Checkbutton(materials_frame, text=LANGUAGES[self.language]['wool'], variable=self.wool_var).pack(side=tk.LEFT, padx=10)
+        ttk.Checkbutton(materials_frame, text=LANGUAGES[self.language]['concrete'], variable=self.concrete_var).pack(side=tk.LEFT, padx=10)
+        ttk.Checkbutton(materials_frame, text=LANGUAGES[self.language]['terracotta'], variable=self.terracotta_var).pack(side=tk.LEFT, padx=10)
+        ttk.Checkbutton(materials_frame, text=LANGUAGES[self.language]['glass'], variable=self.glass_var).pack(side=tk.LEFT, padx=10)
 
         # Advanced options
         self.advanced_expanded = tk.BooleanVar(value=False)
-        advanced_frame = ttk.LabelFrame(self, text=LANGUAGES[self.language]['advanced'], padding=10)
-        advanced_frame.grid(row=5, column=0, columnspan=3, padx=5, pady=5, sticky='ew')
+        advanced_frame = ttk.LabelFrame(main_frame, text=LANGUAGES[self.language]['advanced'], padding="10")
+        advanced_frame.pack(fill=tk.X, pady=5)
+        
         advanced_content = ttk.Frame(advanced_frame)
-
-        ttk.Label(advanced_content, text=LANGUAGES[self.language]['start_pos']).grid(row=0, column=0, padx=5, pady=5, sticky='w')
-        self.start_pos_entry = ttk.Entry(advanced_content, width=20)
-        self.start_pos_entry.insert(0, '(0, -60, 0)')
-        self.start_pos_entry.grid(row=0, column=1, padx=5, pady=5)
-
-        ttk.Label(advanced_content, text=LANGUAGES[self.language]['rotate_angle']).grid(row=1, column=0, padx=5, pady=5, sticky='w')
-        self.rotate_angle_entry = ttk.Entry(advanced_content, width=20)
-        self.rotate_angle_entry.insert(0, '(0, 0, 0)')
-        self.rotate_angle_entry.grid(row=1, column=1, padx=5, pady=5)
-
-        ttk.Label(advanced_content, text=LANGUAGES[self.language]['pitch']).grid(row=2, column=0, padx=5, pady=5, sticky='w')
-        self.pitch_entry = ttk.Entry(advanced_content, width=20)
-        self.pitch_entry.insert(0, '1.0')
-        self.pitch_entry.grid(row=2, column=1, padx=5, pady=5)
-
-        ttk.Label(advanced_content, text=LANGUAGES[self.language]['game_version']).grid(row=3, column=0, padx=5, pady=5, sticky='w')
-        self.game_version_entry = ttk.Entry(advanced_content, width=20)
-        self.game_version_entry.insert(0, '1.20.1')
-        self.game_version_entry.grid(row=3, column=1, padx=5, pady=5)
-
-        def fold_advanced():
-            if self.advanced_expanded.get():
-                advanced_content.pack_forget()
-            else:
-                advanced_content.pack()
-            self.advanced_expanded.set(not self.advanced_expanded.get())
-
-        ttk.Button(advanced_frame, text=LANGUAGES[self.language]['fold'], command=fold_advanced).pack(anchor='w')
-
+        options = [
+            (LANGUAGES[self.language]['start_pos'], '(0, -60, 0)'),
+            (LANGUAGES[self.language]['rotate_angle'], '(0, 0, 0)'),
+            (LANGUAGES[self.language]['pitch'], '1.0'),
+            (LANGUAGES[self.language]['game_version'], '1.20.1')
+        ]
+        
+        for i, (label_text, default_value) in enumerate(options):
+            frame = ttk.Frame(advanced_content)
+            frame.pack(fill=tk.X, pady=2)
+            ttk.Label(frame, text=label_text).pack(side=tk.LEFT, padx=5)
+            entry = ttk.Entry(frame, width=20)
+            entry.insert(0, default_value)
+            entry.pack(side=tk.RIGHT, padx=5)
+            setattr(self, f'option_entry_{i}', entry)
+        
+        ttk.Button(advanced_frame, text=LANGUAGES[self.language]['fold'], command=lambda: self.toggle_advanced(advanced_content)).pack(anchor='w', pady=5)
+        
         if not self.advanced_expanded.get():
             advanced_content.pack_forget()
 
         # Language selection
-        ttk.Label(self, text=LANGUAGES[self.language]['language']).grid(row=9, column=0, padx=5, pady=5, sticky='e')
-        self.language_combo = ttk.Combobox(self, values=['zh', 'en'], state='readonly')
+        language_frame = ttk.Frame(main_frame)
+        language_frame.pack(fill=tk.X, pady=10)
+        
+        ttk.Label(language_frame, text=LANGUAGES[self.language]['language']).pack(side=tk.LEFT, padx=5)
+        self.language_combo = ttk.Combobox(language_frame, values=['zh', 'en'], state='readonly', width=5)
         self.language_combo.set(self.language)
         self.language_combo.bind('<<ComboboxSelected>>', self.change_language)
-        self.language_combo.grid(row=9, column=1, padx=5, pady=5)
+        self.language_combo.pack(side=tk.LEFT, padx=5)
 
         # Convert button
-        ttk.Button(self, text=LANGUAGES[self.language]['convert'], command=self.convert).grid(row=10, column=1, padx=5, pady=20)
+        convert_button = ttk.Button(main_frame, text=LANGUAGES[self.language]['convert'], command=self.convert)
+        convert_button.pack(pady=20)
 
-        # Output text
-        self.output_text = tk.Text(self, height=10, width=60)
-        self.output_text.grid(row=11, column=0, columnspan=3, padx=5, pady=5)
-        def disable_edit(event):
-            return "break"
-        self.output_text.bind("<Key>", disable_edit)
+        # Progress bar
+        self.progress = ttk.Progressbar(main_frame, orient='horizontal', length=400, mode='determinate')
+        self.progress.pack(fill=tk.X, pady=5)
+
+        # Output message
+        output_frame = ttk.LabelFrame(main_frame, text=LANGUAGES[self.language]['output_msg'], padding="10")
+        output_frame.pack(fill=tk.BOTH, expand=True, pady=5)
+        
+        self.output_text = tk.Text(output_frame, height=4, width=60, wrap=tk.WORD)
+        self.output_text.pack(fill=tk.BOTH, expand=True)
+        self.output_text.bind("<Key>", lambda e: "break")
 
     def browse_obj_file(self):
         file_path = filedialog.askopenfilename(filetypes=[('Supported Files', '*.obj;*.stl;*.ply;*.off;*.glb;*.gltf'), ('OBJ Files', '*.obj'), ('STL Files', '*.stl'), ('PLY Files', '*.ply'), ('OFF Files', '*.off'), ('GLB Files', '*.glb;*.gltf')], initialdir=self.model_dir)
@@ -265,14 +277,19 @@ class App(tk.Tk):
             old_stdout = sys.stdout
             sys.stdout = StdoutRedirector(self.output_text)
             try:
-                start_pos = eval(self.start_pos_entry.get())
-                rotate_angle = eval(self.rotate_angle_entry.get())
-                pitch = float(self.pitch_entry.get())
-                game_version = ('java', tuple(map(int, self.game_version_entry.get().split('.'))))
+                start_pos = eval(self.option_entry_0.get())
+                rotate_angle = eval(self.option_entry_1.get())
+                pitch = float(self.option_entry_2.get())
+                game_version = ('java', tuple(map(int, self.option_entry_3.get().split('.'))))
                 wool = bool(self.wool_var.get())
                 concrete = bool(self.concrete_var.get())
                 terracotta = bool(self.terracotta_var.get())
                 glass = bool(self.glass_var.get())
+
+                def call_back(stage_index, stage_num, current_step, stage_steps):
+                    progress_percent = (stage_index + current_step / stage_steps) / stage_num * 100
+                    self.progress['value'] = progress_percent
+                    self.update_idletasks()
 
                 model_to_minecraft(
                     obj_file=obj_file,
@@ -284,15 +301,24 @@ class App(tk.Tk):
                     wool=wool,
                     concrete=concrete,
                     terracotta=terracotta,
-                    glass=glass
+                    glass=glass,
+                    call_back=call_back
                 )
                 messagebox.showinfo(LANGUAGES[self.language]['title'], LANGUAGES[self.language]['convert_success'])
             except Exception as e:
                 messagebox.showerror(LANGUAGES[self.language]['title'], LANGUAGES[self.language]['convert_failed']+f': {str(e)}')
             finally:
                 sys.stdout = old_stdout
+                self.progress['value'] = 0
 
         threading.Thread(target=convert_thread).start()
+
+    def toggle_advanced(self, content):
+        if self.advanced_expanded.get():
+            content.pack_forget()
+        else:
+            content.pack()
+        self.advanced_expanded.set(not self.advanced_expanded.get())
 
 if __name__ == '__main__':
     app = App()
