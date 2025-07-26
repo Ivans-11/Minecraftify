@@ -48,7 +48,7 @@ This project is a tool for voxelizing 3D models and converting them into blocks 
 - The Rotation Angle is in degrees. Three angles are used to represent the rotation of the model in the x, y, and z axes.
 - Setting a smaller voxel size can improve the conversion accuracy, but it will also increase the conversion time.
 - The conversion process may take some time, depending on the complexity of the model.
-- Currently, only solid - color conversions are supported. Texture mapping will be forcibly converted to a single color.
+- The color of the block will be selected automatically from the materials checked.
 - The conversion effect has only been tested in Java Edition 1.20.1. Other versions need to be verified.
 
 ## File Description

@@ -170,6 +170,9 @@ def voxelize_model(mesh, pitch=PITCH):
     print("Voxelizing model...")
     print(f'Type of visual: {type(mesh.visual)}')
     if type(mesh.visual) == trimesh.visual.TextureVisuals:
+        # If the material is a SimpleMaterial and the image is None, set the image to a color image
+        if type(mesh.visual.material) == trimesh.visual.material.SimpleMaterial and mesh.visual.material.image is None:
+            mesh.visual.material.image = trimesh.visual.material.color_image(mesh.visual.material.main_color)
         mesh.visual = mesh.visual.to_color() # Convert to ColorVisuals
         #mesh.visual = trimesh.visual.ColorVisuals(mesh=mesh) # Convert to ColorVisuals
     colors = mesh.visual.vertex_colors  # Get vertex colors
@@ -213,7 +216,7 @@ def insert_blocks(points, colors, tree, world, palette, start_pos=START_POS, rot
     for i, point in enumerate(points):
         # Calculate real world coordinates
         world_x, world_y, world_z = dot(rotation_matrix, point) + start_pos
-        world_x, world_y, world_z = map(int, (world_x, world_y, world_z))
+        world_x, world_y, world_z = map(round, (world_x, world_y, world_z))
 
         # Get voxel color
         voxel_color = get_voxel_color(point, colors, tree)
